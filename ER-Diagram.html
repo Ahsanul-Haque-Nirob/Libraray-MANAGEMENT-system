@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library ER Diagram</title>
+    <style>
+        body { margin: 0; padding: 24px 16px; background: #f4f6fb; color: #1f2937; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        main { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #2c3e6b; margin: 0 0 4px; }
+        .sub { color: #6b7280; margin: 0 0 20px; }
+        .card { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.08); padding: 20px; margin-bottom: 20px; overflow-x: auto; }
+        h2 { color: #2c3e6b; font-size: 1.15rem; margin-top: 0; }
+        table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+        th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+        th { background: #f9fafb; color: #2c3e6b; }
+        code { background: #f3f4f6; padding: 1px 5px; border-radius: 4px; }
+        ul { margin: 0; padding-left: 20px; line-height: 1.7; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Library Management System: ER Diagram</h1>
+    <p class="sub">Database <code>library_management</code> (MySQL). PK = primary key, FK = foreign key, UK = unique.</p>
+
+    <div class="card">
+        <pre class="mermaid">
+erDiagram
+    AUTHORS ||--o{ BOOKS : "writes"
+    CATEGORIES ||--o{ BOOKS : "classifies"
+    BOOKS ||--o{ BORROW_RECORDS : "is borrowed in"
+    MEMBERS ||--o{ BORROW_RECORDS : "borrows"
+    USERS |o..o| MEMBERS : "linked by email"
+
+    AUTHORS {
+        bigint id PK
+        varchar name
+        varchar email UK "nullable"
+        text bio
+        varchar nationality
+        date birth_date
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at "soft delete"
+    }
+
+    CATEGORIES {
+        bigint id PK
+        varchar name UK
+        varchar slug UK
+        text description
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    BOOKS {
+        bigint id PK
+        varchar title
+        varchar isbn UK
+        bigint author_id FK
+        bigint category_id FK
+        text description
+        varchar publisher
+        year published_year
+        int total_copies
+        int available_copies
+        varchar cover_image
+        enum status "available | unavailable"
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at "soft delete"
+    }
+
+    MEMBERS {
+        bigint id PK
+        varchar member_code UK
+        varchar name
+        varchar email UK
+        varchar phone
+        text address
+        date membership_start
+        date membership_end
+        enum status "active | inactive | suspended"
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at "soft delete"
+    }
+
+    BORROW_RECORDS {
+        bigint id PK
+        bigint book_id FK
+        bigint member_id FK
+        date borrow_date
+        date due_date
+        date return_date "nullable"
+        enum status "borrowed | returned | overdue"
+        decimal fine_amount
+        text notes
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    USERS {
+        bigint id PK
+        varchar name
+        varchar email UK
+        timestamp email_verified_at
+        varchar password "bcrypt hash"
+        varchar remember_token
+        timestamp created_at
+        timestamp updated_at
+    }
+        </pre>
+    </div>
+
+    <div class="card">
+        <h2>Relationships</h2>
+        <table>
+            <thead><tr><th>Relationship</th><th>Cardinality</th><th>Key</th><th>On delete</th></tr></thead>
+            <tbody>
+                <tr><td>Author writes Books</td><td>1 : many</td><td><code>books.author_id → authors.id</code></td><td>CASCADE</td></tr>
+                <tr><td>Category classifies Books</td><td>1 : many</td><td><code>books.category_id → categories.id</code></td><td>CASCADE</td></tr>
+                <tr><td>Book appears in Borrow Records</td><td>1 : many</td><td><code>borrow_records.book_id → books.id</code></td><td>CASCADE</td></tr>
+                <tr><td>Member has Borrow Records</td><td>1 : many</td><td><code>borrow_records.member_id → members.id</code></td><td>CASCADE</td></tr>
+                <tr><td>User account ↔ Member profile</td><td>0..1 : 0..1</td><td>Matching <code>email</code> (no foreign key)</td><td>n/a</td></tr>
+            </tbody>
+        </table>
+        <p style="margin-bottom:0">Books ↔ Members is a <strong>many-to-many</strong> relationship resolved by the <code>BORROW_RECORDS</code> table.</p>
+    </div>
+
+    <div class="card">
+        <h2>Business rules</h2>
+        <ul>
+            <li>A user who logs in is matched to a member by email. If no member has that email, a member row is created for them.</li>
+            <li>A loan lasts 14 days. Loans still out after <code>due_date</code> become <code>overdue</code>. A late return is fined 5 per day.</li>
+            <li>Borrowing decrements <code>books.available_copies</code>; returning increments it (never above <code>total_copies</code>).</li>
+            <li>A member can hold only one active loan of the same book, and must have <code>status = active</code> to borrow.</li>
+            <li>Admin is the user with email <code>admin@library.com</code>. Only the admin can add, edit or delete records.</li>
+            <li>Laravel's own tables (<code>migrations</code>, <code>sessions</code>, <code>password_reset_tokens</code>) are left out because they don't hold library data.</li>
+        </ul>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+    mermaid.initialize({ startOnLoad: true, theme: 'default', er: { useMaxWidth: true } });
+</script>
+</body>
+</html>
