@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nirob Library - Login</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0518;
+            --surface: #150a26;
+            --surface-2: #1d0f33;
+            --border: rgba(216, 170, 255, .16);
+            --pink: #e855de;
+            --lavender: #d8aaff;
+            --muted: #b4a6cc;
+            --grad: linear-gradient(90deg, #e855de 0.01%, #5400ee 100%);
+            --grad-soft: linear-gradient(97.64deg, #d8aaff 15.56%, #acb5ff 92.85%);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: radial-gradient(circle at 80% 0%, rgba(142, 21, 255, .35), transparent 45%),
+                        radial-gradient(circle at 10% 100%, rgba(232, 85, 222, .2), transparent 40%), var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+            padding: 20px 16px;
+        }
+        .auth-container { width: 100%; max-width: 480px; }
+        .auth-card {
+            background: rgba(21, 10, 38, .9);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(84, 0, 238, .3);
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+        }
+        .auth-header { padding: 2rem 2rem 1rem; text-align: center; border-bottom: 1px solid var(--border); }
+        .logo-wrap { --size: 130px; position: relative; isolation: isolate; width: var(--size); height: var(--size); margin: 0 auto 1rem; display: grid; place-items: center; animation: logo-float 4s ease-in-out infinite; }
+        .logo-wrap::before, .logo-wrap::after { content: ""; position: absolute; border-radius: 50%; background: conic-gradient(from 0deg, #e855de, #5400ee, #acb5ff, #e855de); animation: logo-spin 4s linear infinite; }
+        .logo-wrap::before { inset: 0; z-index: -1; }
+        .logo-wrap::after { inset: -10px; z-index: -2; filter: blur(20px); animation: logo-spin 4s linear infinite, logo-pulse 2.5s ease-in-out infinite; }
+        .logo-wrap img { width: calc(var(--size) - 10px); height: calc(var(--size) - 10px); border-radius: 50%; background: #fff; animation: logo-breathe 3s ease-in-out infinite; }
+        @keyframes logo-spin { to { transform: rotate(360deg); } }
+        @keyframes logo-pulse { 0%, 100% { opacity: .35; } 50% { opacity: .85; } }
+        @keyframes logo-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        @keyframes logo-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+        .auth-header h1 {
+            font-size: 2rem; font-weight: 700; margin-bottom: .25rem;
+            background: var(--grad-soft); -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .auth-header p { color: var(--muted); margin: 0 0 .5rem; }
+        .auth-body { padding: 2rem; }
+        .auth-body h2 { color: #fff; font-weight: 700; font-size: 1.6rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; margin-bottom: .5rem; font-weight: 500; color: var(--lavender); }
+        .form-group input:not([type="checkbox"]) {
+            width: 100%; padding: .75rem 2.75rem .75rem .9rem; border: 1px solid var(--border); border-radius: 10px;
+            font-size: 1rem; font-family: inherit; background: var(--surface-2); color: #fff; transition: all .25s;
+        }
+        .form-group input::placeholder { color: var(--muted); opacity: .7; }
+        .form-group input:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 3px rgba(232, 85, 222, .25); }
+        .form-group input[type="checkbox"] { accent-color: var(--pink); }
+        .form-group label:has(input[type="checkbox"]) { color: var(--muted); }
+        .btn-auth {
+            width: 100%; padding: .8rem; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600;
+            font-family: inherit; cursor: pointer; transition: all .25s; margin: 1.25rem 0 1rem;
+        }
+        .btn-login { background: var(--grad); color: #fff; }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(232, 85, 222, .4); }
+        .toggle-form { text-align: center; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .toggle-form p { color: var(--muted); margin: 0; }
+        .toggle-form button {
+            background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+            border: none; font-weight: 700; cursor: pointer; padding: 0; margin-left: .25rem; font-size: 1rem; font-family: inherit;
+        }
+        .toggle-form button:hover { text-decoration: underline; text-decoration-color: var(--pink); }
+        .form { display: none; }
+        .form.active { display: block; animation: fadeIn .3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .alert { padding: 1rem; border-radius: 10px; margin-bottom: 1rem; display: none; }
+        .alert.show { display: block; }
+        .alert-success { background: rgba(16, 185, 129, .15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, .4); }
+        .alert-error { background: rgba(239, 68, 68, .15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, .4); }
+        .password-toggle { position: relative; }
+        .password-toggle-btn {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; color: var(--lavender);
+        }
+        .password-toggle-btn:hover { color: var(--pink); }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo-wrap"><img src="logo.png" alt="Nirob Library logo"></div>
+                <h1>Nirob Library</h1>
+                <p>Library Management System</p>
+            </div>
+
+            <div class="auth-body">
+                <!-- Alert Messages -->
+                <div id="alert" class="alert"></div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="form active">
+                    <h2 style="margin-bottom: 1.5rem; text-align: center;">Sign In</h2>
+
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" required placeholder="your@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <div class="password-toggle">
+                            <input type="password" id="loginPassword" required placeholder="Enter your password">
+                            <button type="button" class="password-toggle-btn" onclick="togglePassword('loginPassword')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="display: flex; align-items: center; font-weight: 400;">
+                            <input type="checkbox" id="rememberMe" style="width: auto; margin-right: 0.5rem;">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-auth btn-login">Sign In</button>
+
+                    <div class="toggle-form">
+                        <p>Don't have an account?
+                            <button type="button" onclick="toggleForms()">Sign Up</button>
+                        </p>
+                    </div>
+                </form>
+
+                <!-- Register Form -->
+                <form id="registerForm" class="form">
+                    <h2 style="margin-bottom: 1.5rem; text-align: center;">Create Account</h2>
+
+                    <div class="form-group">
+                        <label for="registerName">Full Name</label>
+                        <input type="text" id="registerName" required placeholder="John Doe">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerEmail">Email Address</label>
+                        <input type="email" id="registerEmail" required placeholder="your@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerPhone">Phone Number</label>
+                        <input type="tel" id="registerPhone" placeholder="555-0123">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <div class="password-toggle">
+                            <input type="password" id="registerPassword" required placeholder="Create a password">
+                            <button type="button" class="password-toggle-btn" onclick="togglePassword('registerPassword')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Confirm Password</label>
+                        <div class="password-toggle">
+                            <input type="password" id="registerConfirmPassword" required placeholder="Confirm password">
+                            <button type="button" class="password-toggle-btn" onclick="togglePassword('registerConfirmPassword')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-auth btn-login">Sign Up</button>
+
+                    <div class="toggle-form">
+                        <p>Already have an account?
+                            <button type="button" onclick="toggleForms()">Sign In</button>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function api(action, body) {
+            const res = await fetch(`api.php?action=${action}`, {
+                method: body ? 'POST' : 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: body ? JSON.stringify(body) : undefined
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Request failed');
+            return data;
+        }
+
+        function toggleForms() {
+            document.getElementById('loginForm').classList.toggle('active');
+            document.getElementById('registerForm').classList.toggle('active');
+            clearAlert();
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const btn = event.target.closest('.password-toggle-btn');
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = '<i class="bi bi-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                btn.innerHTML = '<i class="bi bi-eye"></i>';
+            }
+        }
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert show alert-${type}`;
+            setTimeout(() => clearAlert(), 4000);
+        }
+
+        function clearAlert() {
+            document.getElementById('alert').classList.remove('show');
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await api('login', {
+                    email: document.getElementById('loginEmail').value,
+                    password: document.getElementById('loginPassword').value
+                });
+                showAlert('Login successful! Redirecting...', 'success');
+                setTimeout(() => window.location.href = 'index.html', 800);
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('registerPassword').value;
+            if (password !== document.getElementById('registerConfirmPassword').value) {
+                showAlert('Passwords do not match', 'error');
+                return;
+            }
+            try {
+                await api('register', {
+                    name: document.getElementById('registerName').value,
+                    email: document.getElementById('registerEmail').value,
+                    phone: document.getElementById('registerPhone').value,
+                    password
+                });
+                showAlert('Registration successful! Redirecting...', 'success');
+                setTimeout(() => window.location.href = 'index.html', 800);
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        });
+
+        api('me').then(d => { if (d.user) window.location.href = 'index.html'; }).catch(() => {});
+    </script>
+</body>
+</html>
